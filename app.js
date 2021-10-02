@@ -11,7 +11,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 app.use(express.static("public"));
 
-mongoose.connect("mongodb://localhost:27017/wikiDB",{userNewUrlParser: true});
+mongoose.connect("mongodb://localhost:27017/wikiDB",{useNewUrlParser: true});
 
 const articleSchema = {
     title: String,
@@ -20,6 +20,44 @@ const articleSchema = {
 
 const Article = mongoose.model("Article", articleSchema);
 
-app.listen(300,function(){
+app.route("/articles")
+.get(function(req,res){
+    Article.find(function(err,foundArticles){
+        if(!err){
+        res.send(foundArticles);
+        }
+        else{
+            express.send(err);
+        }
+    });
+})
+
+.post(function(req,res){
+    const newArticle = new Article({
+        title: req.body.title,
+        content: req.body.content
+    });
+    newArticle.save(function(err){
+        if(!err){
+            res.send("Successfully added New Article"); 
+        }
+        else{
+            res.send(err);
+        }
+    });
+}).
+
+delete(function(req,res){
+    Article.deleteMany(function(err){
+        if(!err){
+            res.send("Successfully Deleted all Articles");
+        }
+        else{
+            res.send(err);
+        }
+    });
+});
+
+app.listen(3000,function(){
     console.log("Server started on port 3000");
 })
